@@ -4,10 +4,10 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Network-based penalized regression methods</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+		<link rel="stylesheet" href="css/theme/sky.css">
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -20,12 +20,219 @@
 			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
 			document.getElementsByTagName( 'head' )[0].appendChild( link );
 		</script>
+
+    <!-- MathJax interation, more configuration under Reveal.initialize below -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [["$","$"]]}});
+      MathJax.Hub.Config({TeX: {Macros:{subscript:['_{#1}',1],superscript:['^{#1}',1]}}});
+    </script> 
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+
+
+        <section data-markdown>
+          <script type="text/template">
+## Network-based penalized regression
+
+### Alexej Gossmann
+#### Tulane University
+#### Dept. of Global Biostatistics and Data Science
+### 2016/11/9
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+## Background
+
+* Linear model $\mathbf{y}=X\mathbf{b} + \mathbf{z}$, where $\mathbf{y}\in\mathbb{R}^n$, $X\in\mathbb{R}^{n\times p}$, $\mathbf{b}\in\mathbb{R}^p$, $\mathbb{E}(\mathbf{z}) = 0$.
+* Possibly $n < p$.
+* _Estimation/Prediction_: Find best predictions for $\mathbf{y}$.
+* _Feature selection_: Find which $b_i$ are non-zero.
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+## Motivation
+
+* Typically penalized regression approaches **ignore** any relationships among the features $\mathbf{x}_i$. 
+* In biomedical applications features are related.
+* A network of relationships between the features $\mathbf{x}_i$
+  - can be constructed from the data (e.g., graphical model),
+  - may be given as biological prior knowledge (e.g., genetic pathways from KEGG, etc.)
+
+$\leadsto$ Utilize the network in the regression model!
+          </script>
+        </section>
+
+        <section data-markdown>
+          <script type="text/template">
+### Currently available methods
+
+1. Bondell and Reich (2008) OSCAR
+2. Yang et. al. (2013) GOSCAR
+3. Li and Li (2008, 2010) Grace, aGrace
+4. Pan et. al. (2010) Incorporating Predictor Network in Penalized Regression with Application to Microarray Data
+5. Kim et. al. (2013) Network-based penalized regression with application to genomic data
+6. Kim and Xing (2009) GFlasso
+7. Zhu et. al. (2013) Simultaneous grouping pursuit and feature selection over an undirected graph
+8. Yu and Liu (Oct. 2016) SRIG
+          </script>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+### OSCAR
+
+H. Bondell and B. Reich (2008) "Simulataneous Regression Shrinkage, Variable Selection, and Supervised Clustering of Predictors with OSCAR"
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### OSCAR
+
+Octagonal shrinkage and clustering algorithm:
+$$\hat{\mathbf{b}} = \arg \min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2$$
+subject to
+$$\sum\subscript{j = 1}^p |b_j| + c \sum\subscript{j < k} \max\\{ |b_j|, |b_k| \\} \leq t.$$
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### OSCAR
+
+* $\ell\subscript{1}$ norm encourages sparsity.
+* $\ell\subscript{\infty}$ norm encourages equality of coefficients.
+* OSCAR encourages grouping of highly correlated variables.
+* OSCAR performs sparse regression while simultaneously performing supervised clustering.
+* But no networks of graphs envolved!
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### OSCAR
+
+(a) $\rho = 0.15$ (b) $\rho = 0.85$
+
+![Graphical representation of OSCAR](img/OSCAR.png)
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### OSCAR
+
+#### Interesting observation 
+
+OSCAR is actually a special case of SLOPE:
+
+$$\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda \sum\subscript{j=1}^p (c(j-1) + 1) |b|\subscript{(j)},$$
+
+for $|b|\subscript{(1)} \leq \dots \leq |b|\subscript{(p)}$.
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+### GOSCAR
+
+S. Yang, L. Yuan, Y.-C. Lai, X. Shen, P. Wonka, and J. Ye (2013) "Feature Grouping and Selection Over an Undirected Graph"
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### GOSCAR
+
+* Let $(N, E)$ be the given undirected graph.
+* Assumption: If nodes $i$ and $j$ are connected by an edge in $E$, then $|b_i|$ and $|b_j|$ tend to be equal.
+* Graph OSCAR:
+$$\arg\min\subscript{\mathbf{b}} \frac{1}{2} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda_1 \\|\mathbf{b} \\|_1 + \lambda_2 \sum\subscript{(i, j)\in E} \max\\{ |b_i|, |b_j| \\}.$$
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### GOSCAR
+
+* When the graph is complete GOSCAR is equivalent to OSCAR.
+* GOSCAR is much more challenging to solve than OSCAR.
+* GOSCAR encourages equality of absolute values of coefficients for features connected in the graph.
+* The $\ell\subscript{\infty}$ regularizer can overpenalize large coefficients, resulting in strongly biased estimates.
+* Not clear if robust to graph misspecification.
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+### Grace and aGrace
+
+C. Li and H. Li (2008) "Network-constrained regularization and variable selection for analysis of genomic data"
+
+C. Li and H. Li (2010) "Variable selection and regression analysis for graph-structured covariates with an application to genomics"
+
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+#### Graph-constrained estimation (Grace)
+
+<small>
+1. Consider a weighted graph $G = (V, E, W)$.
+1. Write $u \sim v$ if predictors $u$ and $v$ are linked in the network.
+1. $w(u, v)$ denotes the weight of the edge $e = (u \sim v)$.
+1. $d_v := \sum\subscript{(u \sim v)} w(u, v)$ denotes the degree of vertex $v$.
+1. The $uv$th element of the normalized Laplacian matrix $L$ is defined as
+$$L(u, v) := \begin{cases} 1 - w(u,v) / d_u, \quad \mathrm{if}\, u=v, d_u \neq 0 \\\\ -w(u,v) / \sqrt{d_u d_v}, \quad \mathrm{if}\, u\sim v \\\\ 0, \quad \mathrm{otherwise} \end{cases}.$$
+2. The smoothness of vector $\mathbf{b}$ with respect to the graph structure can be expressed as
+$$\mathbf{b}^T L \mathbf{b} = \sum\subscript{u\sim v} \left( \frac{b_u}{\sqrt{d_u}} - \frac{b_v}{\sqrt{d_v}} \right)^2 w(u, v).$$
+3. A Gaussian Markov random field prior can be assumed for $\mathbf{b}$:
+$$f(\mathbf{b}) \propto \exp\left( -\frac{1}{2\sigma^2} \mathbf{b}^T L \mathbf{b} \right).$$
+
+</small>
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+#### Graph-constrained estimation (Grace)
+
+* Grace:
+$$\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda_1 \\|\mathbf{b} \\|_1 + \lambda_2 \sum\subscript{u\sim v} \left( \frac{b_u}{\sqrt{d_u}} - \frac{b_v}{\sqrt{d_v}} \right)^2 w(u, v).$$
+* Similar to the fused lasso (Tibshirani et. al. 2005), but utilizes the network structure and $\ell_2$ norm on the differences.
+* The last term penalizes the vector $\mathbf{b}$, if it differs too much over predictors that are linked in the graph.
+* What if $u \sim v$, but $b_u$ and $b_v$ have different signs?
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+#### Adaptive Grace
+
+**aGrace**
+$$
+\begin{eqnarray}
+\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 &+& \lambda_1 \\|\mathbf{b} \\|_1 \\\\
+&+& \lambda_2 \sum\subscript{u\sim v} \left( \frac{\mathrm{sgn}(\tilde{b}_u) b_u}{\sqrt{d_u}} - \frac{\mathrm{sgn}(\tilde{b}_v) b_v}{\sqrt{d_v}} \right)^2 w(u, v),
+\end{eqnarray}
+$$
+where $\tilde{\mathbf{b}}$ is an initial estimate obtained from LM or Enet (2-step procedure).
+            </script>
+          </section>
+        </section>
+
 			</div>
 		</div>
 
@@ -36,12 +243,25 @@
 			// More info https://github.com/hakimel/reveal.js#configuration
 			Reveal.initialize({
 				history: true,
+        slideNumber: true,
+
+				transition: 'concave', // none/fade/slide/convex/concave/zoom
+
+        // MathJax integration
+        math: {
+            mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+            config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+        },
 
 				// More info https://github.com/hakimel/reveal.js#dependencies
 				dependencies: [
 					{ src: 'plugin/markdown/marked.js' },
 					{ src: 'plugin/markdown/markdown.js' },
 					{ src: 'plugin/notes/notes.js', async: true },
+
+          // MathJax
+          { src: 'plugin/math/math.js', async: true },
+
 					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
 				]
 			});
