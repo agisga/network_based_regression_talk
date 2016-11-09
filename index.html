@@ -112,6 +112,7 @@ $$\sum\subscript{j = 1}^p |b_j| + c \sum\subscript{j < k} \max\\{ |b_j|, |b_k| \
 * OSCAR encourages grouping of highly correlated variables.
 * OSCAR performs sparse regression while simultaneously performing supervised clustering.
 * But no networks of graphs envolved!
+* Application example: Appalachian Mountains soil data (predicting number of plant species based on soil characteristics).
             </script>
           </section>
 
@@ -129,13 +130,13 @@ $$\sum\subscript{j = 1}^p |b_j| + c \sum\subscript{j < k} \max\\{ |b_j|, |b_k| \
             <script type="text/template">
 ### OSCAR
 
-#### Interesting observation 
+#### An interesting observation 
 
 OSCAR is actually a special case of SLOPE:
 
-$$\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda \sum\subscript{j=1}^p (c(j-1) + 1) |b|\subscript{(j)},$$
+$$\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda \sum\subscript{j=1}^p (c(p-j) + 1) |b|\subscript{(j)},$$
 
-for $|b|\subscript{(1)} \leq \dots \leq |b|\subscript{(p)}$.
+for $|b|\subscript{(1)} \geq \dots \geq |b|\subscript{(p)}$.
             </script>
           </section>
         </section>
@@ -169,6 +170,7 @@ $$\arg\min\subscript{\mathbf{b}} \frac{1}{2} \left\lVert \mathbf{y} - X\mathbf{b
 * GOSCAR encourages equality of absolute values of coefficients for features connected in the graph.
 * The $\ell\subscript{\infty}$ regularizer can overpenalize large coefficients, resulting in strongly biased estimates.
 * Not clear if robust to graph misspecification.
+* Application example: Breast cancer data set ($n = 295$ cancer tumors and $p = 566$ genes), where GOSCAR outperforms LASSO, OSCAR and GFlasso.
             </script>
           </section>
         </section>
@@ -213,7 +215,7 @@ $$f(\mathbf{b}) \propto \exp\left( -\frac{1}{2\sigma^2} \mathbf{b}^T L \mathbf{b
 $$\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda_1 \\|\mathbf{b} \\|_1 + \lambda_2 \sum\subscript{u\sim v} \left( \frac{b_u}{\sqrt{d_u}} - \frac{b_v}{\sqrt{d_v}} \right)^2 w(u, v).$$
 * Similar to the fused lasso (Tibshirani et. al. 2005), but utilizes the network structure and $\ell_2$ norm on the differences.
 * The last term penalizes the vector $\mathbf{b}$, if it differs too much over predictors that are linked in the graph.
-* What if $u \sim v$, but $b_u$ and $b_v$ have different signs?
+* What if $u \sim v$, but $b_u$ and $b_v$ have different signs? (e.g., one of two neighboring genes is upregulated while the other is downregulated)
             </script>
           </section>
 
@@ -229,6 +231,173 @@ $$
 \end{eqnarray}
 $$
 where $\tilde{\mathbf{b}}$ is an initial estimate obtained from LM or Enet (2-step procedure).
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+#### Grace application example
+
+* Glioblastoma microarray gene-expression data.
+* $n = 50$ patients in the training data, $n = 61$ patients in the test data.
+* $p = 1533$ genes, organized in a network of 33 KEGG pathways.
+* Logarithm of time to death used as the response variable.
+* Grace outperforms LASSO and Enet.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+#### aGrace application example
+
+* Analysis of gene expression data measured in human brains of individuals of different ages.
+* Logarithm of age of $n = 30$ individuals as the response variable.
+* Expression levels of $p = 1305$ genes as the predictors.
+* KEGG network with 5288 edges.
+* aGrace outperforms LASSO, Enet, and Grace.
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+W. Pan, B. Xie, X. Shen (2010) "Incorporating Predictor Network in Penalized Regression with Application to Microarray Data"
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+* $L\subscript{\gamma}$ penalized regression (class of penalties): 
+
+$$\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda 2^{\frac{1}{\gamma^\prime}} \sum\subscript{i\sim j} \left( \frac{|b_i|^{\gamma}}{w_i} + \frac{|b_j|^{\gamma}}{w_j} \right)^{\frac{1}{\gamma}},$$
+* $1/\gamma^{\prime} + 1/\gamma = 1$ and $\gamma > 1$.
+* Each term is a weighted group penalty $\Rightarrow$ connected features are likely to have similar effects.
+* $w_i$ determines what to smooth:
+  - $w_i = d_i$ encourages $|b_i| \approx |b_j|$ if $i\sim j$.
+  - $w_i = d_i^{(\gamma + 1) / 2}$ encourages $\frac{|b_i|}{\sqrt{d_i}} \approx \frac{|b_j|}{\sqrt{d_j}}$ if $i\sim j$.
+* Larger $\gamma$ $\Rightarrow$ more smoothing.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+$L\subscript{\gamma}$-norm ball:
+
+![L_gamma norm](img/Pan_et_al.png)
+
+Larger $\gamma$ $\Rightarrow$ more smoothing.
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+* S. Kim, W. Pan, and X. Shen (2013) "Network-based penalized regression with application to genomic data"
+* Y. Zhu, X. Shen, and W. Pan (2013) "Simultaneous grouping and feature selection over an undirected graph"
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+* All previously shown methods assume that $\frac{|b_i|}{w_i} \approx \frac{|b_j|}{w_j}$ if $i\sim j$.
+* Too strong an assumption? 
+* Relaxation: $b_i$ and $b_j$ are likely to be zero or non-zero at the same time (if $i \sim j$).
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+<small>
+* Prior assumption: $I(b_i \neq 0) = I(b_j \neq 0)$ if $i \sim j$.
+* Truncated Lasso Penalty (Shen et. al. 2012):
+
+$$J\subscript{\tau}(|z|) = \min\left( \frac{|z|}{\tau}, 1 \right) \rightarrow I(z \neq 0), \quad \mathrm{as}\, \tau \to 0^+.$$
+
+</small>
+![TLP](img/TLP.png)
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+* $TTLP_I$
+$$
+\begin{eqnarray}
+\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 &+& \lambda_1 \sum\subscript{i = 1}^p J\subscript{\tau}(|b_i|) \\\\
+&+& \lambda_2 \sum\subscript{i\sim j} \left\lvert J\subscript{\tau}\left(\frac{|b_i|}{w_i}\right) - J\subscript{\tau}\left(\frac{|b_j|}{w_j}\right) \right\rvert,
+\end{eqnarray}
+$$
+* $LTLP_I$
+$$
+\begin{eqnarray}
+\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 &+& \lambda_1 \sum\subscript{i = 1}^p |b_i| \\\\
+&+& \lambda_2 \sum\subscript{i\sim j} \left\lvert J\subscript{\tau}\left(\frac{|b_i|}{w_i}\right) - J\subscript{\tau}\left(\frac{|b_j|}{w_j}\right) \right\rvert,
+\end{eqnarray}
+$$
+* Non-convex (use difference convex programming).
+
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+* Simulation studies:
+  - $TTLP_I$ and $LTLP_I$ produce less biased estimates than Grace, aGrace, and $\ell\subscript{\infty}$ based methods.
+  - $TTLP_I$ and $LTLP_I$ are robust to misspecified weights and misspecified network, when compared to Grace, aGrace, and $\ell\subscript{\infty}$ based methods.
+* Breast cancer gene expression data:
+  - $n = 286 + 295$ patients from two studies.
+  - Binary outcome variable (metastasis).
+  - Prior gene network of $p = 294$ genes and 326 edges.
+* eQTL data
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+#### Graph-guided fused lasso for multiple correlated traits (GFlasso)
+
+* Captures a network among multiple response variables:
+
+$$
+\begin{eqnarray}
+\arg\min\subscript{\mathbf{b}} \sum_k \left\lVert \mathbf{y}_k - X\mathbf{b}_k \right\rVert_2^2 &+& \lambda_1 \sum_k \sum\subscript{i = 1}^p |b\subscript{ki}| \\\\
+&+& \lambda_2 \sum\subscript{m\sim l} \sum\subscript{i = 1}^p | b\subscript{mi} - \mathrm{sgn}(\rho\subscript{ml}) b\subscript{li} |.
+\end{eqnarray}
+$$
+
+* Utilizes a quantitative trait network in a multivariate regression model, in order to identify pleiotropic genes/SNPs.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### GFlasso
+
+* When there is only one response variable, GFlasso can be used to capture a network between features:
+
+$$
+\begin{eqnarray}
+\arg\min\subscript{\mathbf{b}} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda_1 \\|\mathbf{b}\\|_1 + \lambda_2 \sum\subscript{i\sim j} | b\subscript{i} - \mathrm{sgn}(\rho\subscript{ij}) b\subscript{j} |.
+\end{eqnarray}
+$$
+            </script>
+          </section>
+        </section>
+
+        <section>
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
             </script>
           </section>
         </section>
