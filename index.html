@@ -155,7 +155,7 @@ S. Yang, L. Yuan, Y.-C. Lai, X. Shen, P. Wonka, and J. Ye (2013) "Feature Groupi
 ### GOSCAR
 
 * Let $(N, E)$ be the given undirected graph.
-* Assumption: If nodes $i$ and $j$ are connected by an edge in $E$, then $|b_i|$ and $|b_j|$ tend to be equal.
+* _Assumption_: If nodes $i$ and $j$ are connected by an edge in $E$, then $|b_i|$ and $|b_j|$ tend to be equal.
 * Graph OSCAR:
 $$\arg\min\subscript{\mathbf{b}} \frac{1}{2} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda_1 \\|\mathbf{b} \\|_1 + \lambda_2 \sum\subscript{(i, j)\in E} \max\\{ |b_i|, |b_j| \\}.$$
             </script>
@@ -230,7 +230,7 @@ $$
 &+& \lambda_2 \sum\subscript{u\sim v} \left( \frac{\mathrm{sgn}(\tilde{b}_u) b_u}{\sqrt{d_u}} - \frac{\mathrm{sgn}(\tilde{b}_v) b_v}{\sqrt{d_v}} \right)^2 w(u, v),
 \end{eqnarray}
 $$
-where $\tilde{\mathbf{b}}$ is an initial estimate obtained from LM or Enet (2-step procedure).
+where $\tilde{\mathbf{b}}$ is an initial estimate obtained from LS, Ridge or Enet (2-step procedure).
             </script>
           </section>
 
@@ -436,7 +436,7 @@ b_p &=& c_1 \omega\subscript{p1} + c_2 \omega\subscript{p2} + \dots + c_p \omega
 $$
 * Notice that $\mathbf{b}$ consists of $p$ additive parts.
 * If $X_i$ is uncorrelated with $\mathbf{y}$, then $c_i = 0$ and $(c_1 \omega\subscript{1}, c_2 \omega\subscript{2}, \dots, c_p \omega\subscript{p}) =  0$.
-* If $c_i \neq 0$, then the support of $(c_1 \omega\subscript{1}, c_2 \omega\subscript{2}, \dots, c_p \omega\subscript{p})$ is determined by the neighborhood of node $i$.
+* If $c_i \neq 0$, then the support of $(c_i \omega\subscript{1i}, c_i \omega\subscript{2i}, \dots, c_i \omega\subscript{pi})$ is determined by the neighborhood of node $i$.
             </script>
           </section>
 
