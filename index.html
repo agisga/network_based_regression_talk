@@ -358,6 +358,14 @@ $$
         <section>
           <section data-markdown>
             <script type="text/template">
+### GFlasso
+
+S. Kim and E. P. Xing (2009) "Statistical Estimation of Correlated Genome Associations to a Quantitative Train Network"
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
 #### Graph-guided fused lasso for multiple correlated traits (GFlasso)
 
 * Captures a network among multiple response variables:
@@ -392,12 +400,111 @@ $$
           <section data-markdown>
             <script type="text/template">
 ### SRIG
+
+G. Yu and Y. Liu (2016) "Sparse Regression Incorporating Graphical Structure Among Predictors"
             </script>
           </section>
 
           <section data-markdown>
             <script type="text/template">
 ### SRIG
+
+* $\mathbf{y}=X\mathbf{b} + \mathbf{z}$, where $\mathbf{y}\in\mathbb{R}^n$, $X = [X_1, X_2, \dots, X_p] \in\mathbb{R}^{n\times p}$, $\mathbf{b}\in\mathbb{R}^p$, $\mathbb{E}(\mathbf{z}) = 0$.
+* Predictor graph $G$.
+* *Random design setting*: For each *row* $\mathbf{x}_i$ of $X$ assume that $\mathbb{E}(\mathbf{x}_i) = 0$ and $\mathbb{Var}(\mathbf{x}_i) = \Sigma$.
+* Denote $\Omega = (\omega\subscript{ij}) := \Sigma^{-1}$.
+* Denote $\Sigma\subscript{xy} = (c_1, c_2, \dots, c_p)^T := \mathbb{Cov}(X_k, y_k)$.
+
+$$\Rightarrow \Sigma\subscript{xy} = \mathbb{E}(X^T Y / n) = \mathbb{E}(X^T X \mathbf{b} / n) + \mathbf{E}(X^T \mathbf{z} / n) = \Sigma \mathbf{b}$$
+
+$$\Rightarrow \mathbf{b} = \Sigma^{-1} \Sigma\subscript{xy} = \Omega \Sigma\subscript{xy}$$
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
+
+* From $\mathbf{b} = \Omega \Sigma\subscript{xy}$ we have that
+$$
+\begin{eqnarray}
+b_1 &=& c_1 \omega\subscript{11} + c_2 \omega\subscript{12} + \dots + c_p \omega\subscript{1p} \\\\
+b_2 &=& c_1 \omega\subscript{21} + c_2 \omega\subscript{22} + \dots + c_p \omega\subscript{2p} \\\\
+\vdots \\\\
+b_p &=& c_1 \omega\subscript{p1} + c_2 \omega\subscript{p2} + \dots + c_p \omega\subscript{pp} \\\\
+\end{eqnarray}
+$$
+* Notice that $\mathbf{b}$ consists of $p$ additive parts.
+* If $X_i$ is uncorrelated with $\mathbf{y}$, then $c_i = 0$ and $(c_1 \omega\subscript{1}, c_2 \omega\subscript{2}, \dots, c_p \omega\subscript{p}) =  0$.
+* If $c_i \neq 0$, then the support of $(c_1 \omega\subscript{1}, c_2 \omega\subscript{2}, \dots, c_p \omega\subscript{p})$ is determined by the neighborhood of node $i$.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
+
+* Adjacency matrix $E$ (0-1-valued, convention: $E\subscript{i,i} = 1$).
+* $\mathcal{N}_i := \\{j: E\subscript{ij} \neq 0\\}$ = "$i$th node and its neighbors".
+* Change of variables:
+$$
+\begin{eqnarray}
+b_1 &=& V_1^{(1)} E\subscript{11} + V_1^{(2)} E\subscript{12} + \dots + V_1^{(p)} E\subscript{1p} \\\\
+b_2 &=& V_2^{(1)} E\subscript{21} + V_2^{(2)} E\subscript{22} + \dots + V_2^{(p)} E\subscript{2p} \\\\
+\vdots \\\\
+b_p &=& V_p^{(1)} E\subscript{p1} + V_p^{(2)} E\subscript{p2} + \dots + V_p^{(p)} E\subscript{pp} \\\\
+\end{eqnarray}
+$$
+
+$\leadsto$ Decomposition $\mathbf{b} = V^{(1)} + V^{(2)} + \dots + V^{(p)}$, where $V^{(i)} = 0$ for some $i$, and $\mathrm{supp}(V^{(i)}) \subset \mathcal{N}_i$ for all $i$.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+#### Sparse Regression Incorporating Graphical structure among predictors (SRIG)
+
+$$\min\subscript{\mathbf{b}, V^{(1)}, \dots, V^{(p)}} \frac{1}{2n} \left\lVert \mathbf{y} - X\mathbf{b} \right\rVert_2^2 + \lambda \sum\subscript{i = 1}^p \tau_i \left\lVert V^{(i)} \right\rVert_2,$$
+subject to
+$$\sum\subscript{i = 1}^p V^{(i)} = \mathbf{b},$$
+$$\mathrm{supp}(V^{(i)}) \subseteq \mathcal{N}_i,\quad \forall i = 1,\dots,p.$$
+
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
+
+* Node-by-node rather than edge-by-edge.
+* Adaptive LASSO (no edges in $G$), group LASSO ($G$ consists of disconnected complete subgraphs), and Ridge Regression ($G$ is a complete graph) are special cases.
+* Theoretical finite sample bounds for prediction and estimation.
+* Model selection consistency.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
+
+* Simulation results
+  - SRIG performs well for estimation, prediction, and feature selection.
+  - SRIG generally outperforms LS, LASSO, aLASSO, Ridge, Enet, PCR, SPLS, GOSCAR, GRACE, under the assumption that connected variables in the graph act together.
+  - If the intersection between the neighborhoods of relevant and irrelevant predictors is big, then LASSO outperforms SRIG.
+            </script>
+          </section>
+
+          <section data-markdown>
+            <script type="text/template">
+### SRIG
+
+#### Alzheimer's Disease Neuroimaging Initiative (ADNI)
+ 
+* Mini Mental State Examination (MMSE) score (0-30 points) is predicted from structural MRI.
+* 51 AD patients, 52 controls; total: $n = 103$.
+* 93 regions of interest (ROI); for each ROI, volume of GM tissue used as a feature; total $p = 93$.
+* $G$ estimated by the graphical Lasso (Friedman et. al. 2008), has 419 edges.
+* SRIG outperforms LASSO, Ridge, aLasso, Enet, GOSCAR, GRACE, PCR, SPLS in terms of MSE on test data.
             </script>
           </section>
         </section>
